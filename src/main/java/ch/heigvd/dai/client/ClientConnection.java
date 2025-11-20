@@ -18,6 +18,6 @@ class ClientConnection {
 
 	public String receive() {
 		// TODO
-		return "temp message";
+		return null;
 	}
 }
