@@ -3,10 +3,10 @@ package ch.heigvd.dai.commands;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
-import ch.heigvd.dai.client.ClientRunner;
+import ch.heigvd.dai.client.Client;
 
 @CommandLine.Command(name = "client", description = "Start the client part of the network game.")
-public class Client implements Callable<Integer> {
+public class ClientCommand implements Callable<Integer> {
 
 	@CommandLine.Option(
 		names = {"-H", "--host"},
@@ -22,9 +22,9 @@ public class Client implements Callable<Integer> {
 
 	@Override
 	public Integer call() {
-		ClientRunner client;
+		Client client;
 		try {
-			client = new ClientRunner(host, port);
+			client = new Client(host, port);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
