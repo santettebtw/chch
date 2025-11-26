@@ -17,6 +17,6 @@ public class ServerCommand implements Callable<Integer> {
   public Integer call() {
       Server server = new Server(port);
       server.createServer();
-      return 1;
+      return 0;
   }
 }
