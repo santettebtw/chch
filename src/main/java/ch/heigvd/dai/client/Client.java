@@ -23,7 +23,12 @@ public class ClientRunner {
 	 * starting the REPL.
 	 */
 	public void init() {	
-		connection.connect();
+		try {
+			connection.connect();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		while (true) {
 			// TODO: send and recieve messages
@@ -35,7 +40,12 @@ public class ClientRunner {
 			// TODO: do we really want this in here?
 			String input = ui.readInput();
 			if (input.equals("/exit")) break;
-			connection.send(input);
+			try {
+				connection.send(input);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			messages.add(input);
 			if (messages.size() > 200) messages.remove(0);
 		}
