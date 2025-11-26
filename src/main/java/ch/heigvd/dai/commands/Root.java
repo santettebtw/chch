@@ -6,7 +6,7 @@ import picocli.CommandLine;
     description = "A small game to experiment with TCP.",
     version = "1.0.0",
     subcommands = {
-      Client.class,
+      ClientCommand.class,
       ServerCommand.class,
     },
     scope = CommandLine.ScopeType.INHERIT,
