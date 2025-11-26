@@ -4,14 +4,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClientRunner {
+public class Client {
 	private ClientUI ui;
 	private List<String> messages;
 	private List<String> channels;
 	private ClientConnection connection;
 
 	// TODO: handle ioexception here?
-	public ClientRunner(String host, int port) throws IOException {
+	public Client(String host, int port) throws IOException {
 		this.ui = new ClientUI();
 		this.messages = new ArrayList<String>();
 		this.channels = List.of("channel1", "channel2");
