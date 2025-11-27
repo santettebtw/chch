@@ -7,11 +7,18 @@ import java.nio.charset.StandardCharsets;
 public class ClientHandler implements Runnable {
     private BufferedWriter out;
     private final Socket socket;
+    private String username;
+    private String channel = "test";
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
+        this.channel = "global";
+        this.username = "...";
     }
 
+    /**
+     * Methode pour le thread client qui va exécuter les bonnes commandes en fonction des entrées du client
+     */
     @Override
     public void run() {
         try {
@@ -24,9 +31,58 @@ public class ClientHandler implements Runnable {
             send("Bienvenue sur le chat !");
 
             String message;
+
             while ((message = in.readLine()) != null) {
-                System.out.println("[Server] Message from " + clientAddress + ": " + message);
-                Server.broadcast(clientAddress + " dit : " + message, this);
+                String[] commande = message.split(" ", 2);
+
+                //Switch des commandes possible
+                switch (commande[0].toUpperCase()) {
+                    case "JOIN":
+                        String[] params = commande[1].split(" ", 3);
+
+                        //check si le channel existe
+                        if (!Server.getListChannels().contains(params[0])) {
+                            send("Le channel n'existe pas !");
+                            continue;
+                        }
+
+                        //check si le username est disponible
+                        if (Server.getUsernames(params[0]).contains(params[1])) {
+                            send("Le pseudo n'est pas disponible !");
+                            continue;
+                        }
+
+                        Server.remove(this); //le retire de l'ancien channel
+                        channel = params[0]; //channel actuel
+                        username = params[1]; //username pour ce channel
+                        Server.add(this); //ajout à la liste des users du channel
+
+                        send("Join the channel with success");
+                        System.out.println("[Server] Client change channel: " + channel);
+                        break;
+                    case "CHANGE":
+                        username = commande[1];
+                        send("Change the username to " + username);
+                        System.out.println("[Server] Client change username: " + username);
+                        break;
+                    case "MESSAGE":
+                        System.out.println("[Server] Message from " + username + ": " + commande[1]);
+                        Server.broadcast(channel,username + ": " + commande[1], this);
+                        break;
+                    case "LIST":
+                        for (String channel : Server.getListChannels()) {
+                            send("- " + channel);
+                        }
+                        break;
+                    case "QUIT":
+                        System.out.println("[Server] Client " + username + " disconnected");
+                        send("Disconnect the chat");
+                        Server.broadcast(channel,"User "+ username + " quit the channel !", this);
+                        Server.remove(this);
+                        break;
+                    default:
+                        //TODO
+                }
             }
         }catch (IOException e) {
             System.out.println("[Server] Client disconnected");
@@ -36,6 +92,10 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Envoie un message au client
+     * @param message
+     */
     public void send(String message) {
         try {
             out.write(message + "\n");
@@ -44,4 +104,7 @@ public class ClientHandler implements Runnable {
             System.out.println("[Server] Send failed: " + e);
         }
     }
+
+    public String getUsername() {return username;}
+    public String getChannel() {return channel;}
 }
