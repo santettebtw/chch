@@ -150,3 +150,7 @@ JOINED <username>
 
 
 ## Section 4 - Examples
+
+### Basic Flow
+
+![basic flow](./basic_flow.png)
