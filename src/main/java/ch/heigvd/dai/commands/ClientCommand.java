@@ -17,7 +17,7 @@ public class ClientCommand implements Callable<Integer> {
 	@CommandLine.Option(
 		names = {"-p", "--port"},
 		description = "Port to use (default: ${DEFAULT-VALUE}).",
-		defaultValue = "6433")
+		defaultValue = "4269")
 	protected int port;
 
 	@Override
