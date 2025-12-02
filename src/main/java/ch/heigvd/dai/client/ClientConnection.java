@@ -1,41 +1,31 @@
 package ch.heigvd.dai.client;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-class ClientConnection {
-	private String host;
-	private int port;
+public class ClientConnection {
+	private final String host;
+	private final int port;
 	private Socket socket;
 	private BufferedReader reader;
 	private BufferedWriter writer;
-
-	private ConcurrentLinkedQueue<String> inbox;
+	private final ConcurrentLinkedQueue<String> inbox;
 	private volatile boolean running;
 	private Thread receiveThread;
-	
 
-	ClientConnection(String host, int port) {
+	public ClientConnection(String host, int port) {
 		this.host = host;
 		this.port = port;
-		this.inbox = new ConcurrentLinkedQueue<String>();
+		this.inbox = new ConcurrentLinkedQueue<>();
 		this.running = false;
 	}
 
-	// TODO: do we want to handle exceptions here?
-	public void connect() throws UnknownHostException, IOException {	
+	public void connect() throws IOException {
 		socket = new Socket(host, port);
-		reader = new BufferedReader(new InputStreamReader(
-			socket.getInputStream(), StandardCharsets.UTF_8));
-		writer = new BufferedWriter(new OutputStreamWriter(
-			socket.getOutputStream(), StandardCharsets.UTF_8));
+		reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
+		writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
 
 		running = true;
 		receiveThread = Thread.startVirtualThread(this::readLoop);
@@ -46,7 +36,6 @@ class ClientConnection {
 			while (running) {
 				String line = reader.readLine();
 				if (line == null) break;
-
 				inbox.add(line);
 			}
 		} catch (IOException ignored) {
@@ -55,9 +44,9 @@ class ClientConnection {
 		}
 	}
 
-	// TODO: do we want to handle exceptions here?
 	public void send(String msg) throws IOException {
 		writer.write(msg);
+		writer.newLine();
 		writer.flush();
 	}
 

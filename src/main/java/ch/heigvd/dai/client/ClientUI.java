@@ -1,83 +1,101 @@
 package ch.heigvd.dai.client;
 
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+
 import java.io.IOException;
 import java.util.List;
 
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
-import org.jline.terminal.Terminal;
-import org.jline.terminal.TerminalBuilder;
-import org.jline.utils.InfoCmp;
+public class ClientUI {
+	private final Terminal terminal;
+	private static final int LEFT_PANEL_WIDTH = 16;
+	private int rows;
+	private int columns;
+	private StringBuilder currentInput = new StringBuilder();
+	private int cursorOffset = 0;
 
-class ClientUI {
-	private Terminal term;
-	private LineReader reader;
-
-	static final int LEFT_PANEL_WIDTH = 16;
-	
-	ClientUI() throws IOException {
-		this.term = TerminalBuilder.builder()
-		.jna(true)
-		.system(true)
-		.build();
-
-		this.reader = LineReaderBuilder.builder()
-		.terminal(this.term)
-		.build();
+	public ClientUI() throws IOException {
+		terminal = TerminalBuilder.builder().system(true).jna(true).build();
+		this.rows = terminal.getHeight();
+		this.columns = terminal.getWidth();
 	}
 
-	public String readInput() {
-		return reader.readLine(" > ");
+	public Terminal getTerminal() {
+		return terminal;
 	}
 
 	public void render(List<String> channels, List<String> messages) {
-		int width = term.getWidth();
-		int height = term.getHeight();
+		terminal.puts(org.jline.utils.InfoCmp.Capability.clear_screen);
 
-		term.puts(InfoCmp.Capability.clear_screen);
-
-		// LEFT PANEL
-		// TODO: dynamic width ?
-		for (int i = 0; i < channels.size(); i++) {
-			term.puts(InfoCmp.Capability.cursor_address, i, 0);
-			term.writer().print(padRight(channels.get(i), LEFT_PANEL_WIDTH));
-		}
-
-		// BORDER
-		for (int y = 0; y < height; y++) {
-			term.puts(InfoCmp.Capability.cursor_address, y, LEFT_PANEL_WIDTH);
-			term.writer().print("|");
-		}
-
-		int rightX = LEFT_PANEL_WIDTH + 1;
-		int usableHeight = height - 1;
-		// +2 for padding
-		int startMsg = Math.max(0, messages.size() - usableHeight + 2);
-
-		// RIGHT PANEL (messages)
-		for (int i = 0; i < usableHeight; i++) {
-			int msgIndex = startMsg + i;
-			term.puts(InfoCmp.Capability.cursor_address, i, rightX);
-
-			if (msgIndex < messages.size()) {
-				String msg = messages.get(msgIndex);
-				int rightWidth = width - rightX - 1;
-				term.writer().print(truncate(msg, rightWidth));
+		// draw channel list
+		for (int i = 0; i < rows - 1; i++) {
+			terminal.writer().print("\033[" + (i + 1) + ";1H"); // move cursor
+			if (i < channels.size()) {
+				terminal.writer().print(padRight(channels.get(i), LEFT_PANEL_WIDTH));
 			} else {
-				term.writer().print("");
+				terminal.writer().print(" ".repeat(LEFT_PANEL_WIDTH));
+			}
+
+			// draw vertical border
+			terminal.writer().print("|");
+
+			// draw message area
+			int msgIndex = i;
+			if (msgIndex < messages.size()) {
+				String msg = truncate(messages.get(msgIndex), columns - LEFT_PANEL_WIDTH - 1);
+				terminal.writer().print(msg);
 			}
 		}
 
-		term.flush();
+		// draw input prompt
+		terminal.writer().print("\033[" + rows + ";2H>");
+		terminal.writer().print(currentInput.toString());
+		terminal.writer().print("\033[" + rows + ";" + (3 + cursorOffset) + "H");
+		terminal.flush();
 	}
 
-	static String padRight(String s, int width) {
+	public void updateMessageArea(List<String> messages) {
+		int msgAreaHeight = rows - 1;
+		int startMsg = Math.max(0, messages.size() - msgAreaHeight);
+
+		for (int y = 0; y < msgAreaHeight; y++) {
+			terminal.writer().print("\033[" + (y + 1) + ";" + (LEFT_PANEL_WIDTH + 2) + "H");
+			int msgIndex = startMsg + y;
+			String line = (msgIndex < messages.size()) ? truncate(messages.get(msgIndex), columns - LEFT_PANEL_WIDTH - 1) : "";
+			terminal.writer().print(padRight(line, columns - LEFT_PANEL_WIDTH - 1));
+		}
+
+		// restore cursor to input line
+		terminal.writer().print("\033[" + rows + ";3H");
+		terminal.writer().print(currentInput.toString());
+		terminal.writer().print("\033[" + rows + ";" + (3 + cursorOffset) + "H");
+		terminal.flush();
+	}
+
+	public void setCurrentInput(String input) {
+		currentInput = new StringBuilder(input);
+	}
+
+	public String getCurrentInput() {
+		return currentInput.toString();
+	}
+
+	private String padRight(String s, int width) {
 		if (s.length() >= width) return s.substring(0, width);
 		return s + " ".repeat(width - s.length());
 	}
 
-	static String truncate(String s, int width) {
+	private String truncate(String s, int width) {
 		if (s.length() <= width) return s;
 		return s.substring(0, width);
+	}
+
+	public void setCurrentInput(String input, int cursorPos) {
+		currentInput = new StringBuilder(input);
+		cursorOffset = cursorPos;
+	}
+
+	public int getCursorOffset() {
+		return cursorOffset;
 	}
 }
