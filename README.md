@@ -6,6 +6,9 @@
 
 - [Features](#features)
 - [Installation](#installation)
+- [Docker](#docker)
+    - [Build and Publish with Docker](#build-and-publish-with-docker)
+    - [Use with Docker](#use-with-docker)
 - [Usage](#usage)
     - [CLI Usage](#cli-usage)
     - [Client REPL Usage - / (slash) commands](#client-repl-usage----slash-commands)
@@ -57,6 +60,70 @@ mvn package
 
 ```bash
 java -jar target/java-tcp-programming-1.0-SNAPSHOT.jar
+```
+
+## Docker
+
+### Build and Publish with Docker
+
+To build and publish the Docker image to GitHub Container Registry, follow these steps:
+
+**1. Build the Docker image:**
+
+```bash
+docker build -t chch .
+```
+
+**2. Tag the image for GitHub Container Registry:**
+
+Replace `<YOUR_GITHUB_USERNAME>` with your GitHub username:
+
+```bash
+docker tag chch ghcr.io/<YOUR_GITHUB_USERNAME>/chch:latest
+```
+
+**3. Login to GitHub Container Registry:**
+
+You'll need a Personal Access Token (PAT) with `write:packages` permission. Create one at: https://github.com/settings/tokens (Settings > Developer settings > Personal access tokens > Tokens (classic))
+
+```bash
+docker login ghcr.io -u <YOUR_GITHUB_USERNAME>
+```
+
+When prompted for the password, enter your Personal Access Token.
+
+**4. Publish the image to GitHub Container Registry:**
+
+```bash
+docker push ghcr.io/<YOUR_GITHUB_USERNAME>/chch:latest
+```
+
+The image will be private by default. You can change the visibility in the package settings on GitHub at: `https://github.com/<YOUR_GITHUB_USERNAME>?tab=packages`
+
+### Use with Docker
+
+You can run the application using Docker without installing Java or Maven on your computer.
+
+**1. Run the server:**
+
+```bash
+docker run -p 4269:4269 ghcr.io/<YOUR_GITHUB_USERNAME>/chch:latest server -p=4269
+```
+
+Replace `<YOUR_GITHUB_USERNAME>` with your GitHub username. The `-p 4269:4269` option maps port 4269 from the container to port 4269 on your host machine.
+
+**2. Run the client:**
+
+```bash
+docker run -it ghcr.io/<YOUR_GITHUB_USERNAME>/chch:latest client -H=host.docker.internal -p=4269
+```
+
+Replace `<YOUR_GITHUB_USERNAME>` with your GitHub username. The `-it` option allows interactive mode for the REPL. Use `host.docker.internal` to connect to a server running on your host machine.
+
+**Note:** If the image is private, you'll need to authenticate first:
+
+```bash
+docker login ghcr.io -u <YOUR_GITHUB_USERNAME>
 ```
 
 ## Usage
