@@ -136,6 +136,22 @@ RECEIVE <username> <message>
 
 ---
 
+### Message history
+
+The client may request the message history for his current channel.
+
+**Rquest**
+
+```
+HISTORY
+```
+
+**Response**
+
+The server will send multiple `RECIEVE <username> <message>` for each message in the history.
+
+---
+
 ### User Joined Channel
 
 When a user has joined a channel, the server broadcasts to all users in that channel that a user has joined.
@@ -154,3 +170,7 @@ JOINED <username>
 ### Basic Flow
 
 ![basic flow](./basic_flow.png)
+
+### Errorneous Join Flow
+
+![errorneous flow](./errorneous_flow.png)
