@@ -47,7 +47,6 @@ public class Server {
             //TODO ecrire/lecture fichier
             //TODO sauvegarder memoire discussion (map)
             //TODO envoye reicive history client
-            //TODO issue
 
             while (!serverSocket.isClosed()) {
                 Socket clientSocket = serverSocket.accept();
@@ -94,7 +93,6 @@ public class Server {
      * @return
      */
     public static List<String> getListChannels() {return listChannels;}
-
 
     /**
      * Retourne un set de tous les usernames du channel
