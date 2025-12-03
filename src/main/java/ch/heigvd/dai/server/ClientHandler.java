@@ -28,8 +28,6 @@ public class ClientHandler implements Runnable {
             String clientAddress = socket.getInetAddress().getHostAddress() + ":" + socket.getPort();
             System.out.println("[Server] Client connected: " + clientAddress);
 
-            send("Bienvenue sur le chat !");
-
             String message;
 
             while ((message = in.readLine()) != null) {
@@ -87,6 +85,10 @@ public class ClientHandler implements Runnable {
                             send(" " + user);
                         }
                         break;
+                    case "HISTORY":
+                        for (String historyMessage : Server.getHistoryMessage(channel)){
+                            send("RECEIVE " + historyMessage);
+                        }
                     case "QUIT":
                         System.out.println("[Server] Client " + username + " disconnected");
                         Server.broadcast(channel,"QUIT "+ username , this);
