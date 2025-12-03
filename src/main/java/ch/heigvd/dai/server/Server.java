@@ -2,6 +2,7 @@ package ch.heigvd.dai.server;
 
 import java.io.*;
 import java.net.*;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +30,24 @@ public class Server {
             ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor(); ) {
             System.out.println("[Server] listening on port " + PORT);
 
-            //on crée le channel global
-            listChannels.add("global");
-            clients.put("global", new ConcurrentHashMap<>());
+            //on crée les channels en fonction des fichiers existant dans le dossier /data
+            Path path = Paths.get("./data");
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+                for (Path entry : stream) {
+                    if (Files.isRegularFile(entry)) {
+                        String name = entry.getFileName().toString();
+                        //On supprime l'extension pour le nom des canaux
+                        String withoutExt = name.contains(".") ? name.substring(0, name.lastIndexOf('.')) : name;
+                        listChannels.add(withoutExt);
+                        clients.put(withoutExt, new ConcurrentHashMap<>());
+                    }
+                }
+            }
+
+            //TODO ecrire/lecture fichier
+            //TODO sauvegarder memoire discussion (map)
+            //TODO envoye reicive history client
+            //TODO issue
 
             while (!serverSocket.isClosed()) {
                 Socket clientSocket = serverSocket.accept();

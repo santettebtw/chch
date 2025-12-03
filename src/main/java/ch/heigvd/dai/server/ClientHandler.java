@@ -8,12 +8,12 @@ public class ClientHandler implements Runnable {
     private BufferedWriter out;
     private final Socket socket;
     private String username;
-    private String channel = "test";
+    private String channel;
+    private enum commandes{MESSAGE,JOIN,CHANGE}
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
         this.channel = "global";
-        this.username = "...";
     }
 
     /**
@@ -32,12 +32,15 @@ public class ClientHandler implements Runnable {
 
             String message;
 
+            //TODO regarder doc pour format message
+            //TODO OK/ERROR
             while ((message = in.readLine()) != null) {
                 String[] commande = message.split(" ", 2);
 
                 //Switch des commandes possible
                 switch (commande[0].toUpperCase()) {
                     case "JOIN":
+                        //TODO brodcast join
                         String[] params = commande[1].split(" ", 3);
 
                         //check si le channel existe
@@ -67,7 +70,7 @@ public class ClientHandler implements Runnable {
                         break;
                     case "MESSAGE":
                         System.out.println("[Server] Message from " + username + ": " + commande[1]);
-                        Server.broadcast(channel,username + ": " + commande[1], this);
+                        Server.broadcast(channel,username + " " + commande[1], this);
                         break;
                     case "LIST":
                         for (String channel : Server.getListChannels()) {
@@ -80,8 +83,6 @@ public class ClientHandler implements Runnable {
                         Server.broadcast(channel,"User "+ username + " quit the channel !", this);
                         Server.remove(this);
                         break;
-                    default:
-                        //TODO
                 }
             }
         }catch (IOException e) {
