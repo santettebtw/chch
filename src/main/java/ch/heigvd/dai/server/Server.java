@@ -66,11 +66,20 @@ public class Server {
      */
     public static void broadcast(String channel, String message, ClientHandler sender) {
         //On sauvegarde dans le server par channel et on split pour enlever RECEIVE
-        historyMessages.get(channel).add(message.split(" ", 2)[1]);
+        // Only save RECEIVE messages (chat messages) to history, not JOINED or other broadcasts
+        if (message.startsWith("RECEIVE ")) {
+            List<String> history = historyMessages.get(channel);
+            if (history != null) {
+                history.add(message.split(" ", 2)[1]);
+            }
+        }
 
-        for (ClientHandler client : clients.get(channel).values()) {
-            if (client != sender) {
-                client.send(message);
+        Map<String, ClientHandler> channelClients = clients.get(channel);
+        if (channelClients != null) {
+            for (ClientHandler client : channelClients.values()) {
+                if (client != sender) {
+                    client.send(message);
+                }
             }
         }
     }
@@ -80,7 +89,13 @@ public class Server {
      * @param client
      */
     public static void add(ClientHandler client) {
-        clients.get(client.getChannel()).put(client.getUsername(), client);
+        Map<String, ClientHandler> channelClients = clients.get(client.getChannel());
+        if (channelClients == null) {
+            System.err.println("[Server] ERROR: Channel '" + client.getChannel() + "' does not exist in clients map!");
+            System.err.println("[Server] Available channels in map: " + clients.keySet());
+            throw new IllegalStateException("Channel '" + client.getChannel() + "' does not exist in clients map");
+        }
+        channelClients.put(client.getUsername(), client);
     }
 
     /**
@@ -88,7 +103,21 @@ public class Server {
      * @param client
      */
     public static void remove(ClientHandler client) {
-        clients.get(client.getChannel()).remove(client.getUsername());
+        if (client == null) {
+            return;
+        }
+        String channel = client.getChannel();
+        String username = client.getUsername();
+        
+        if (channel == null || username == null) {
+            // Client not yet fully initialized or not in any channel
+            return;
+        }
+        
+        Map<String, ClientHandler> channelClients = clients.get(channel);
+        if (channelClients != null) {
+            channelClients.remove(username);
+        }
     }
 
     /**
@@ -103,7 +132,11 @@ public class Server {
      * @return
      */
     public static Set<String> getUsernames(String channel) {
-        return clients.get(channel).keySet();
+        Map<String, ClientHandler> channelClients = clients.get(channel);
+        if (channelClients != null) {
+            return channelClients.keySet();
+        }
+        return java.util.Collections.emptySet();
     }
 
     /**

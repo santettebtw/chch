@@ -3,6 +3,7 @@ package ch.heigvd.dai.server;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class ClientHandler implements Runnable {
     private BufferedWriter out;
@@ -32,22 +33,55 @@ public class ClientHandler implements Runnable {
 
             while ((message = in.readLine()) != null) {
                 String[] commande = message.split(" ", 2);
+				System.out.println("[Server] Received message: " + message);
+				System.out.println("[Server] Parsed command array length: " + commande.length);
+				if (commande.length > 0) {
+					System.out.println("[Server] Command[0]: '" + commande[0] + "'");
+				}
+				if (commande.length > 1) {
+					System.out.println("[Server] Command[1]: '" + commande[1] + "'");
+				}
 
                 //Switch des commandes possible
-                switch (commande[0].toUpperCase()) {
+                try {
+                    if (commande.length == 0 || commande[0] == null || commande[0].isEmpty()) {
+                        System.out.println("[Server] Empty or invalid command");
+                        send("ERROR 0");
+                        continue;
+                    }
+                    switch (commande[0].toUpperCase()) {
                     case "JOIN":
+                        if (commande.length < 2 || commande[1] == null) {
+                            send("ERROR 0");
+                            break;
+                        }
                         String[] params = commande[1].split(" ", 3);
+                        if (params.length < 2) {
+                            send("ERROR 0");
+                            break;
+                        }
 
                         //check si le channel existe
-                        if (!Server.getListChannels().contains(params[0])) {
+                        System.out.println("[Server] Checking if channel exists: " + params[0]);
+                        List<String> channels = Server.getListChannels();
+                        if (channels == null) {
+                            System.out.println("[Server] ERROR: getListChannels() returned null!");
+                            send("ERROR 0");
+                            break;
+                        }
+                        System.out.println("[Server] Available channels: " + channels);
+                        if (!channels.contains(params[0])) {
+                            System.out.println("[Server] Channel does not exist, sending ERROR 1");
                             send("ERROR 1");
-                            continue;
+                            break;
                         }
 
                         //check si le username est disponible
+                        System.out.println("[Server] Checking if username is available: " + params[1] + " in channel " + params[0]);
                         if (Server.getUsernames(params[0]).contains(params[1])) {
+                            System.out.println("[Server] Username already taken, sending ERROR 2");
                             send("ERROR 2");
-                            continue;
+                            break;
                         }
 
                         Server.remove(this); //le retire de l'ancien channel
@@ -55,12 +89,14 @@ public class ClientHandler implements Runnable {
                         username = params[1]; //username pour ce channel
                         Server.add(this); //ajout à la liste des users du channel
 
+                        System.out.println("[Server] Sending OK for JOIN: " + channel + " " + username);
                         send("OK");
+                        System.out.println("[Server] OK sent, now broadcasting JOINED");
                         Server.broadcast(channel, "JOINED " + username, this);
                         System.out.println("[Server] Client change channel: " + channel);
                         break;
                     case "NICK":
-                        if (Server.getUsernames(channel).contains(commande[0])) {
+                        if (Server.getUsernames(channel).contains(commande[1])) {
                             send("ERROR 1");
                             continue;
                         }
@@ -74,26 +110,42 @@ public class ClientHandler implements Runnable {
                         Server.broadcast(channel,"RECEIVE " + username + " " + commande[1], this);
                         break;
                     case "CHANLIST":
-                        send("CHANLIST");
+                        StringBuilder chanList = new StringBuilder("CHANLIST");
                         for (String channel : Server.getListChannels()) {
-                            send(" " + channel);
+                            chanList.append(" ").append(channel);
                         }
+                        send(chanList.toString());
                         break;
                     case "USRLIST":
-                        send("USRLIST");
+                        StringBuilder usrList = new StringBuilder("USRLIST");
                         for (String user : Server.getUsernames(channel)) {
-                            send(" " + user);
+                            usrList.append(" ").append(user);
                         }
+                        send(usrList.toString());
                         break;
                     case "HISTORY":
                         for (String historyMessage : Server.getHistoryMessage(channel)){
                             send("RECEIVE " + historyMessage);
                         }
+                        break;
                     case "QUIT":
                         System.out.println("[Server] Client " + username + " disconnected");
                         Server.broadcast(channel,"QUIT "+ username , this);
                         Server.remove(this);
                         break;
+                    default:
+                        System.out.println("[Server] Unknown command: " + commande[0]);
+                        break;
+                }
+                } catch (Exception e) {
+                    System.out.println("[Server] ERROR processing command: " + e.getClass().getName() + ": " + e.getMessage());
+                    System.out.println("[Server] Command was: " + (commande.length > 0 ? commande[0] : "unknown"));
+                    e.printStackTrace();
+                    try {
+                        send("ERROR 0");
+                    } catch (Exception sendEx) {
+                        System.out.println("[Server] Failed to send ERROR 0: " + sendEx);
+                    }
                 }
             }
         }catch (IOException e) {
@@ -110,10 +162,13 @@ public class ClientHandler implements Runnable {
      */
     public void send(String message) {
         try {
+            System.out.println("[Server] Sending: " + message);
             out.write(message + "\n");
             out.flush();
+            System.out.println("[Server] Sent and flushed: " + message);
         } catch (IOException e) {
             System.out.println("[Server] Send failed: " + e);
+            e.printStackTrace();
         }
     }
 
