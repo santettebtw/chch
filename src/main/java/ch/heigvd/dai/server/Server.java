@@ -15,6 +15,7 @@ public class Server {
     private static int PORT = 4269;
     private static final Map<String, Map<String, ClientHandler>> clients = new ConcurrentHashMap<>();
     private static List<String> listChannels;
+    private static final Map<String, List<String>> historyMessages = new ConcurrentHashMap<>();
 
     public Server(int port){
         PORT = port;
@@ -40,13 +41,12 @@ public class Server {
                         String withoutExt = name.contains(".") ? name.substring(0, name.lastIndexOf('.')) : name;
                         listChannels.add(withoutExt);
                         clients.put(withoutExt, new ConcurrentHashMap<>());
+                        historyMessages.put(withoutExt, new ArrayList<>());
                     }
                 }
             }
 
             //TODO ecrire/lecture fichier
-            //TODO sauvegarder memoire discussion (map)
-            //TODO envoye reicive history client
 
             while (!serverSocket.isClosed()) {
                 Socket clientSocket = serverSocket.accept();
@@ -65,6 +65,9 @@ public class Server {
      * @param sender
      */
     public static void broadcast(String channel, String message, ClientHandler sender) {
+        //On sauvegarde dans le server par channel et on split pour enlever RECEIVE
+        historyMessages.get(channel).add(message.split(" ", 2)[1]);
+
         for (ClientHandler client : clients.get(channel).values()) {
             if (client != sender) {
                 client.send(message);
@@ -101,5 +104,14 @@ public class Server {
      */
     public static Set<String> getUsernames(String channel) {
         return clients.get(channel).keySet();
+    }
+
+    /**
+     * Retourne la liste de tous les messages enregistré dans le server
+     * @param channel
+     * @return
+     */
+    public static List<String> getHistoryMessage(String channel) {
+        return historyMessages.get(channel);
     }
 }
