@@ -1,6 +1,5 @@
 package ch.heigvd.dai.commands;
 
-import java.io.IOException;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import ch.heigvd.dai.client.Client;
@@ -17,22 +16,19 @@ public class ClientCommand implements Callable<Integer> {
 	@CommandLine.Option(
 		names = {"-p", "--port"},
 		description = "Port to use (default: ${DEFAULT-VALUE}).",
-		defaultValue = "6433")
+		defaultValue = "4269")
 	protected int port;
 
 	@Override
 	public Integer call() {
-		Client client;
 		try {
-			client = new Client(host, port);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			Client client = new Client(host, port);
+			client.init();
+			return 0;
+		} catch (RuntimeException e) {
+			System.err.println("failed to initialize client: " + e.getMessage());
 			e.printStackTrace();
 			return 1;
 		}
-
-		client.init();
-
-		return 0;
 	}
 }
