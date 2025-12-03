@@ -1,0 +1,49 @@
+<diagram program="umletino" version="15.1"><zoom_level>9</zoom_level><help_text></help_text><element><id>UMLGeneric</id><coordinates><x>0</x><y>18</y><w>90</w><h>27</h></coordinates><panel_attributes>Client 1</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>36</x><y>36</y><w>27</w><h>828</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes>10;10;10;900</additional_attributes></element><element><id>Relation</id><coordinates><x>234</x><y>36</y><w>27</w><h>828</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes>10;10;10;900</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>198</x><y>18</y><w>90</w><h>27</h></coordinates><panel_attributes>Server</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>396</x><y>18</y><w>90</w><h>27</h></coordinates><panel_attributes>Client 2</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>432</x><y>36</y><w>27</w><h>828</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes>10;10;10;900</additional_attributes></element><element><id>Relation</id><coordinates><x>36</x><y>99</y><w>225</w><h>36</h></coordinates><panel_attributes>lt=-&gt;
+1. establish connection</panel_attributes><additional_attributes>10;20;230;20</additional_attributes></element><element><id>Relation</id><coordinates><x>36</x><y>126</y><w>225</w><h>36</h></coordinates><panel_attributes>lt=&lt;.&gt;
+2. connection established</panel_attributes><additional_attributes>10;20;230;20</additional_attributes></element><element><id>Relation</id><coordinates><x>36</x><y>180</y><w>225</w><h>36</h></coordinates><panel_attributes>lt=&lt;-
+4. OK</panel_attributes><additional_attributes>10;20;230;20</additional_attributes></element><element><id>Relation</id><coordinates><x>36</x><y>153</y><w>225</w><h>36</h></coordinates><panel_attributes>lt=-&gt;
+3. JOIN global alyx</panel_attributes><additional_attributes>10;20;230;20</additional_attributes></element><element><id>Relation</id><coordinates><x>234</x><y>207</y><w>225</w><h>36</h></coordinates><panel_attributes>lt=&lt;-
+5. establish connection</panel_attributes><additional_attributes>10;20;230;20</additional_attributes></element><element><id>Relation</id><coordinates><x>234</x><y>234</y><w>225</w><h>36</h></coordinates><panel_attributes>lt=&lt;.&gt;
+6. connection established</panel_attributes><additional_attributes>10;20;230;20</additional_attributes></element><element><id>Relation</id><coordinates><x>234</x><y>261</y><w>225</w><h>36</h></coordinates><panel_attributes>lt=&lt;-
+7. JOIN global barney</panel_attributes><additional_attributes>10;20;230;20</additional_attributes></element><element><id>Relation</id><coordinates><x>234</x><y>288</y><w>225</w><h>36</h></coordinates><panel_attributes>lt=-&gt;
+8. OK</panel_attributes><additional_attributes>10;20;230;20</additional_attributes></element><element><id>UMLSyncBarHorizontal</id><coordinates><x>27</x><y>63</y><w>432</w><h>18</h></coordinates><panel_attributes>lw=5
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>162</x><y>63</y><w>162</w><h>27</h></coordinates><panel_attributes>JOIN THE SERVER
+bg=white
+transparency=0
+layer=3</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSyncBarHorizontal</id><coordinates><x>27</x><y>324</y><w>432</w><h>18</h></coordinates><panel_attributes>lw=5
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>162</x><y>324</y><w>162</w><h>27</h></coordinates><panel_attributes>LIST CLIENTS ON CHANNEL
+bg=white
+transparency=0
+layer=3</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>36</x><y>360</y><w>225</w><h>36</h></coordinates><panel_attributes>lt=-&gt;
+9. USRLIST</panel_attributes><additional_attributes>10;20;230;20</additional_attributes></element><element><id>Relation</id><coordinates><x>36</x><y>387</y><w>225</w><h>36</h></coordinates><panel_attributes>lt=&lt;-
+10. USRLIST alyx barney</panel_attributes><additional_attributes>10;20;230;20</additional_attributes></element><element><id>UMLSyncBarHorizontal</id><coordinates><x>27</x><y>423</y><w>432</w><h>18</h></coordinates><panel_attributes>lw=5
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>162</x><y>423</y><w>162</w><h>27</h></coordinates><panel_attributes>SEND A MESSAGE
+bg=white
+transparency=0
+layer=3</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>36</x><y>459</y><w>225</w><h>36</h></coordinates><panel_attributes>lt=-&gt;
+11. MESSAGE hello global!</panel_attributes><additional_attributes>10;20;230;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>162</x><y>495</y><w>162</w><h>27</h></coordinates><panel_attributes>MESSAGE BROADCAST / RCV
+bg=white
+transparency=0
+layer=3</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSyncBarHorizontal</id><coordinates><x>27</x><y>495</y><w>432</w><h>18</h></coordinates><panel_attributes>lw=5
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>234</x><y>612</y><w>225</w><h>36</h></coordinates><panel_attributes>lt=-&gt;
+12. RECEIVE alyx hello global!</panel_attributes><additional_attributes>10;20;230;20</additional_attributes></element><element><id>UMLNote</id><coordinates><x>225</x><y>531</y><w>225</w><h>72</h></coordinates><panel_attributes>This is broadcasted to every client
+connected to the global chanel except
+from the sender.
+Right now, only barney is the only
+other client
+bg=white
+layer=3
+transparency=0
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>162</x><y>648</y><w>162</w><h>27</h></coordinates><panel_attributes>CHANNEL SWITCHING
+bg=white
+transparency=0
+layer=3</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSyncBarHorizontal</id><coordinates><x>27</x><y>648</y><w>432</w><h>18</h></coordinates><panel_attributes>lw=5
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>36</x><y>684</y><w>225</w><h>36</h></coordinates><panel_attributes>lt=-&gt;
+13. JOIN half-life alyx</panel_attributes><additional_attributes>10;20;230;20</additional_attributes></element><element><id>Relation</id><coordinates><x>36</x><y>711</y><w>225</w><h>36</h></coordinates><panel_attributes>lt=&lt;-
+14. OK</panel_attributes><additional_attributes>10;20;230;20</additional_attributes></element><element><id>Relation</id><coordinates><x>234</x><y>738</y><w>225</w><h>36</h></coordinates><panel_attributes>lt=&lt;-
+15. MESSAGE hello alyx!</panel_attributes><additional_attributes>10;20;230;20</additional_attributes></element><element><id>UMLNote</id><coordinates><x>36</x><y>774</y><w>414</w><h>54</h></coordinates><panel_attributes>This message is broadcasted to every other client in the global channel, but no 
+other client is present  anymore...
+bg=white
+layer=3
+transparency=0
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>0</x><y>846</y><w>90</w><h>27</h></coordinates><panel_attributes>Client 1</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>198</x><y>846</y><w>90</w><h>27</h></coordinates><panel_attributes>Server</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>396</x><y>846</y><w>90</w><h>27</h></coordinates><panel_attributes>Client 2</panel_attributes><additional_attributes></additional_attributes></element></diagram>
