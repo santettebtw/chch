@@ -32,26 +32,23 @@ public class ClientHandler implements Runnable {
 
             String message;
 
-            //TODO regarder doc pour format message
-            //TODO OK/ERROR
             while ((message = in.readLine()) != null) {
                 String[] commande = message.split(" ", 2);
 
                 //Switch des commandes possible
                 switch (commande[0].toUpperCase()) {
                     case "JOIN":
-                        //TODO brodcast join
                         String[] params = commande[1].split(" ", 3);
 
                         //check si le channel existe
                         if (!Server.getListChannels().contains(params[0])) {
-                            send("Le channel n'existe pas !");
+                            send("ERROR 1");
                             continue;
                         }
 
                         //check si le username est disponible
                         if (Server.getUsernames(params[0]).contains(params[1])) {
-                            send("Le pseudo n'est pas disponible !");
+                            send("ERROR 2");
                             continue;
                         }
 
@@ -60,27 +57,39 @@ public class ClientHandler implements Runnable {
                         username = params[1]; //username pour ce channel
                         Server.add(this); //ajout à la liste des users du channel
 
-                        send("Join the channel with success");
+                        send("OK");
+                        Server.broadcast(channel, "JOINED " + username, this);
                         System.out.println("[Server] Client change channel: " + channel);
                         break;
-                    case "CHANGE":
+                    case "NICK":
+                        if (Server.getUsernames(channel).contains(commande[0])) {
+                            send("ERROR 1");
+                            continue;
+                        }
+
                         username = commande[1];
-                        send("Change the username to " + username);
+                        send("OK");
                         System.out.println("[Server] Client change username: " + username);
                         break;
                     case "MESSAGE":
                         System.out.println("[Server] Message from " + username + ": " + commande[1]);
-                        Server.broadcast(channel,username + " " + commande[1], this);
+                        Server.broadcast(channel,"RECEIVE " + username + " " + commande[1], this);
                         break;
-                    case "LIST":
+                    case "CHANLIST":
+                        send("CHANLIST");
                         for (String channel : Server.getListChannels()) {
-                            send("- " + channel);
+                            send(" " + channel);
+                        }
+                        break;
+                    case "USRLIST":
+                        send("USRLIST");
+                        for (String user : Server.getUsernames(channel)) {
+                            send(" " + user);
                         }
                         break;
                     case "QUIT":
                         System.out.println("[Server] Client " + username + " disconnected");
-                        send("Disconnect the chat");
-                        Server.broadcast(channel,"User "+ username + " quit the channel !", this);
+                        Server.broadcast(channel,"QUIT "+ username , this);
                         Server.remove(this);
                         break;
                 }
